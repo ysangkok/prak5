@@ -1,0 +1,142 @@
+#ifndef OCLUTIL_H
+#define OCLUTIL_H
+
+#include <CL/opencl.h>
+#include <string>
+#include <fstream>
+
+#define KERNEL_SOURCE 	"../oclMIcomputation.cl"	// location of the kernel file relative to pr5 executable
+#define KERNEL_NAME 	"oclMIcomputation"			// the name of the kernel to execute
+
+class OCL {
+
+public:
+
+	OCL(bool GPU) : gpu(GPU)
+	{
+		setupOcl();
+	}
+	
+	~OCL()
+	{
+		cleanup();
+	}
+
+	// the platform we are on
+	cl_platform_id oclPlatform;
+	
+	// the device we use
+	cl_device_id oclDevice;
+	
+	// the context for the device in which the kernel executes
+	cl_context oclContext;
+	
+	// the command queue for the kernel to hold the commands the host issues
+	cl_command_queue oclCmdQueue;
+	
+	// the program, compiled from source
+	cl_program oclProgram;
+	
+	// the kernel that is to be executed
+	cl_kernel oclKernel;
+
+private:
+
+	bool gpu;
+	
+	// sets up all necessary variables to execute an OpenCL kernel
+	void setupOcl();
+	
+	// releases kernel, program, command queue and context
+	void cleanup();
+	
+	std::string loadProgram()
+	{
+		std::ifstream fis;
+		fis.open(KERNEL_SOURCE, std::ifstream::in);
+		std::string result((std::istreambuf_iterator<char>(fis)), std::istreambuf_iterator<char>());
+	
+		return result;
+	};
+
+public:
+
+	const char* oclErrorString(cl_int error)
+	{
+	    static const char* errorString[] = {
+		"CL_SUCCESS",
+		"CL_DEVICE_NOT_FOUND",
+		"CL_DEVICE_NOT_AVAILABLE",
+		"CL_COMPILER_NOT_AVAILABLE",
+		"CL_MEM_OBJECT_ALLOCATION_FAILURE",
+		"CL_OUT_OF_RESOURCES",
+		"CL_OUT_OF_HOST_MEMORY",
+		"CL_PROFILING_INFO_NOT_AVAILABLE",
+		"CL_MEM_COPY_OVERLAP",
+		"CL_IMAGE_FORMAT_MISMATCH",
+		"CL_IMAGE_FORMAT_NOT_SUPPORTED",
+		"CL_BUILD_PROGRAM_FAILURE",
+		"CL_MAP_FAILURE",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"CL_INVALID_VALUE",
+		"CL_INVALID_DEVICE_TYPE",
+		"CL_INVALID_PLATFORM",
+		"CL_INVALID_DEVICE",
+		"CL_INVALID_CONTEXT",
+		"CL_INVALID_QUEUE_PROPERTIES",
+		"CL_INVALID_COMMAND_QUEUE",
+		"CL_INVALID_HOST_PTR",
+		"CL_INVALID_MEM_OBJECT",
+		"CL_INVALID_IMAGE_FORMAT_DESCRIPTOR",
+		"CL_INVALID_IMAGE_SIZE",
+		"CL_INVALID_SAMPLER",
+		"CL_INVALID_BINARY",
+		"CL_INVALID_BUILD_OPTIONS",
+		"CL_INVALID_PROGRAM",
+		"CL_INVALID_PROGRAM_EXECUTABLE",
+		"CL_INVALID_KERNEL_NAME",
+		"CL_INVALID_KERNEL_DEFINITION",
+		"CL_INVALID_KERNEL",
+		"CL_INVALID_ARG_INDEX",
+		"CL_INVALID_ARG_VALUE",
+		"CL_INVALID_ARG_SIZE",
+		"CL_INVALID_KERNEL_ARGS",
+		"CL_INVALID_WORK_DIMENSION",
+		"CL_INVALID_WORK_GROUP_SIZE",
+		"CL_INVALID_WORK_ITEM_SIZE",
+		"CL_INVALID_GLOBAL_OFFSET",
+		"CL_INVALID_EVENT_WAIT_LIST",
+		"CL_INVALID_EVENT",
+		"CL_INVALID_OPERATION",
+		"CL_INVALID_GL_OBJECT",
+		"CL_INVALID_BUFFER_SIZE",
+		"CL_INVALID_MIP_LEVEL",
+		"CL_INVALID_GLOBAL_WORK_SIZE",
+	    };
+
+	    const int errorCount = sizeof(errorString) / sizeof(errorString[0]);
+
+	    const int index = -error;
+
+	    return (index >= 0 && index < errorCount) ? errorString[index] : "";
+	};
+
+};
+
+#endif // OCLUTIL_H
