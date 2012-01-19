@@ -19,7 +19,7 @@
 
 __kernel void oclMIcomputation(__global uchar * sequences, __global float * onePointProbs, __global float * result, uint sequenceLength, uint numSequences)
 {
-	const float epsilon = 1e-6f;
+	const ushort epsilon = 1.0f / 1e-6f;
 
 	const int x = get_global_id(0), y = get_global_id(1), xWid = get_global_size(0);
 	if (!(x <= y)) return;
