@@ -15,6 +15,7 @@
 #define NUMSEQ		512		// maximum number of sequences
 
 #pragma OPENCL EXTENSION cl_amd_printf : enable
+//#define printfenable 1
 
 __kernel void oclMIcomputation(__global uchar * sequences, __global float * onePointProbs, __global float * result, uint sequenceLength, uint numSequences)
 {
@@ -45,13 +46,13 @@ __kernel void oclMIcomputation(__global uchar * sequences, __global float * oneP
 
 
 #if 1
-	__local half lonecp[NUMCHARS*SEQLENGTH];
+	__local ushort lonecp[NUMCHARS*SEQLENGTH];
 	if (get_local_id(0) * get_local_size(0) + get_local_id(1) == 0) {
 		for (i=0; i<NUMCHARS*SEQLENGTH; i++) {
-			lonecp[i] = onePointProbs[i];
+			lonecp[i] = onePointProbs[i] * USHRT_MAX;
 		}
 	}
-	__local half* onecp = lonecp;
+	__local ushort* onecp = lonecp;
 	barrier(CLK_LOCAL_MEM_FENCE);
 #else
 	__global float* onecp = onePointProbs;
@@ -60,20 +61,26 @@ __kernel void oclMIcomputation(__global uchar * sequences, __global float * oneP
 	float MI_ij = 0;
 	for (int x1 = 0; x1 < NUMCHARS; x1++) {
 		if (onecp[x*NUMCHARS+x1] < epsilon) {
+#ifdef printfenable
 			printf("outer\n");
+#endif
 			continue;
 		}
 		for (int y1 = 0; y1 < NUMCHARS; y1++) {
 			if (onecp[y*NUMCHARS+y1] < epsilon || twoPointOccs[x1][y1] == 0) {
+#ifdef printfenable
 				printf("inner %f\n", onecp[y*NUMCHARS+y1]);
+#endif
 				continue;
 			}
 			float p_ij_xy = ((float) (twoPointOccs[x1][y1])) / ((float) numSequences);
+#ifdef printfenable
 float t1 = onecp[x*NUMCHARS+x1];
 printf("%d %f\n", x*NUMCHARS+x1, t1);
 t1 = onecp[y*NUMCHARS+y1];
 printf("%d %f\n", y*NUMCHARS+y1, t1);
-			MI_ij += p_ij_xy * log2(p_ij_xy / (onecp[x*NUMCHARS+x1] * onecp[y*NUMCHARS+y1]));
+#endif
+			MI_ij += p_ij_xy * log2(p_ij_xy / ((float) onecp[x*NUMCHARS+x1] / USHRT_MAX * ((float) onecp[y*NUMCHARS+y1] / USHRT_MAX)));
 		}
 	}
 

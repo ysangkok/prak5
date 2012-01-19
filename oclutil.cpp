@@ -79,7 +79,7 @@ void OCL::setupOcl()
 	if (oclError != CL_SUCCESS) {
 		std::cout << oclErrorString(oclError) << std::endl;
 
-		if (oclError == CL_BUILD_PROGRAM_FAILURE) {
+		{ //if (oclError == CL_BUILD_PROGRAM_FAILURE) {
 			size_t length;
 			oclError = clGetProgramBuildInfo(oclProgram,
 				oclDevice,
