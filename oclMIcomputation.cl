@@ -21,7 +21,7 @@
 
 __kernel void oclMIcomputation(__global uchar * sequences, __global float * onePointProbs, __global float * result, uint sequenceLength, uint numSequences)
 {
-	const ushort epsilon = 1.0f / 1e-6f;
+	const ushort epsilon = USHRT_MAX;
 
 	const int x = get_global_id(0), y = get_global_id(1), xWid = get_global_size(0);
 	if (!(x <= y)) return;
@@ -62,14 +62,14 @@ __kernel void oclMIcomputation(__global uchar * sequences, __global float * oneP
 
 	float MI_ij = 0;
 	for (int x1 = 0; x1 < NUMCHARS; x1++) {
-		if (onecp[x*NUMCHARS+x1] < epsilon) {
+		if (onecp[x*NUMCHARS+x1] > epsilon) {
 #ifdef printfenable
 			printf("outer\n");
 #endif
 			continue;
 		}
 		for (int y1 = 0; y1 < NUMCHARS; y1++) {
-			if (onecp[y*NUMCHARS+y1] < epsilon || twoPointOccs[x1][y1] == 0) {
+			if (onecp[y*NUMCHARS+y1] > epsilon || twoPointOccs[x1][y1] == 0) {
 #ifdef printfenable
 				printf("inner %f\n", onecp[y*NUMCHARS+y1]);
 #endif
