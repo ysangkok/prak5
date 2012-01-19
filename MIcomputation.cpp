@@ -10,6 +10,7 @@
 // Bruno Schneewittchen 66666336
 ////////////////////////////////////////////////////////////////
 
+#include <stdexcept>
 #include <iostream>
 #include <CL/opencl.h>
 #include <cstring>
@@ -113,11 +114,12 @@ void computeMIonGPU(SequenceSet& sequence, Matrix<float>& MI, bool GPU)
 	
 	// size for a work group: each workgroup computes one matrix entry, thus computes the correlation
 	// one time for each character => 25 work items are sufficient
-	size_t localWorkSize[2] = { 1, 1 };
+	size_t localWorkSize[2] = { 5, 5 };
+	if (sequenceLength % localWorkSize[0] != 0) throw std::runtime_error("sequence length ^ 2 not divisable by local work size");
 	
 	// global work size defines the total amount of threads over all work group, thus needs to be a multiple of the local
 	// work size in each dimension.
-	size_t globalWorkSize[2] = { localWorkSize[0] * sequenceLength, localWorkSize[1] * sequenceLength };
+	size_t globalWorkSize[2] = { sequenceLength, sequenceLength };
 	
 	// create buffer on device, one for each input array
 	oclDevSrcSequence = clCreateBuffer(		ocl.oclContext,
