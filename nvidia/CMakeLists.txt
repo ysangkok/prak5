@@ -9,7 +9,7 @@ PROJECT(Praktikum5)
 #------------------------------------------------------------------------------
 # Set options
 SET(CMAKE_VERBOSE_MAKEFILE off)
-SET(CMAKE_BUILD_TYPE "Release")
+SET(CMAKE_BUILD_TYPE "Debug")
 
 SET(BUILD_FOR_64_BITS on CACHE BOOL "Build for 64 bit platforms?")
 
