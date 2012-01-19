@@ -14,7 +14,7 @@ SET(CMAKE_BUILD_TYPE "Release")
 SET(BUILD_FOR_64_BITS on CACHE BOOL "Build for 64 bit platforms?")
 
 SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O3 -g")
-SET(CMAKE_CXX_FLAGS_RELEASE "-O3")
+SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -ffast-math -march=native -mtune=native")
 SET(CMAKE_CXX_FLAGS_DEBUG  "-O0 -g")
 SET(HEADER ../Fasta.h ../Matrix.h ../MIcomputation.h ../oclutil.h ../SequenceSet.h)
 SET(SOURCE ../Fasta.cpp ../pr5.cpp ../SequenceSet.cpp ../MIcomputation.cpp ../oclutil.cpp)

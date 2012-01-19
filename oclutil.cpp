@@ -67,7 +67,7 @@ void OCL::setupOcl()
 	}
 	
 	// TODO if necessary add optimization options here
-	const char * options = "-w -Werror -g -O0";
+	const char * options = "-Werror -O3 -cl-mad-enable -cl-fast-relaxed-math";
 	
 	// create the kernel with the specified options
 	oclError = clBuildProgram(oclProgram, 1, &oclDevice, options, 0, 0);
