@@ -41,6 +41,10 @@ void OCL::setupOcl()
 		exit(oclError);
 	}
 
+        cl_ulong size;
+        clGetDeviceInfo(oclDevice, CL_DEVICE_LOCAL_MEM_SIZE, sizeof(cl_ulong), &size, 0);
+        std::cout << "Local memory size: " << size << std::endl;
+
 	// create a computing context for the device
 	oclContext = clCreateContext(0, 1, &oclDevice, 0, 0, &oclError);
 	
@@ -67,7 +71,7 @@ void OCL::setupOcl()
 	}
 	
 	// TODO if necessary add optimization options here
-	const char * options = "-w -Werror -g -O0";
+	const char * options = "-Werror -g -O0";
 	
 	// create the kernel with the specified options
 	oclError = clBuildProgram(oclProgram, 1, &oclDevice, options, 0, 0);

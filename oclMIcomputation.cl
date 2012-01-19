@@ -22,7 +22,8 @@ __kernel void oclMIcomputation(__global uchar * sequences, __global float * oneP
 
 	const int x = get_global_id(0), y = get_global_id(1), xWid = get_global_size(0);
 	if (!(x <= y)) return;
-	//printf("%d, %d, %d, %d\n", get_global_id(0), get_global_id(1), get_local_id(0), get_local_id(1));
+	//printf("global: %d, %d, local: %d, %d, group: %d, %d\n", get_global_id(0), get_global_id(1), get_local_id(0), get_local_id(1), get_group_id(0), get_group_id(1));
+	//return;
 
 
 	int twoPointOccs[NUMCHARS][NUMCHARS];
@@ -42,15 +43,37 @@ __kernel void oclMIcomputation(__global uchar * sequences, __global float * oneP
 	printf("===STOP ===\n");
 */
 
+
+#if 1
+	__local half lonecp[NUMCHARS*SEQLENGTH];
+	if (get_local_id(0) * get_local_size(0) + get_local_id(1) == 0) {
+		for (i=0; i<NUMCHARS*SEQLENGTH; i++) {
+			lonecp[i] = onePointProbs[i];
+		}
+	}
+	__local half* onecp = lonecp;
+	barrier(CLK_LOCAL_MEM_FENCE);
+#else
+	__global float* onecp = onePointProbs;
+#endif
+
 	float MI_ij = 0;
 	for (int x1 = 0; x1 < NUMCHARS; x1++) {
-		if (onePointProbs[x*NUMCHARS+x1] < epsilon)
+		if (onecp[x*NUMCHARS+x1] < epsilon) {
+			printf("outer\n");
 			continue;
+		}
 		for (int y1 = 0; y1 < NUMCHARS; y1++) {
-			if (onePointProbs[y*NUMCHARS+y1] < epsilon || twoPointOccs[x1][y1] == 0)
+			if (onecp[y*NUMCHARS+y1] < epsilon || twoPointOccs[x1][y1] == 0) {
+				printf("inner %f\n", onecp[y*NUMCHARS+y1]);
 				continue;
+			}
 			float p_ij_xy = ((float) (twoPointOccs[x1][y1])) / ((float) numSequences);
-			MI_ij += p_ij_xy * log2(p_ij_xy / (onePointProbs[x*NUMCHARS+x1] * onePointProbs[y*NUMCHARS+y1]));
+float t1 = onecp[x*NUMCHARS+x1];
+printf("%d %f\n", x*NUMCHARS+x1, t1);
+t1 = onecp[y*NUMCHARS+y1];
+printf("%d %f\n", y*NUMCHARS+y1, t1);
+			MI_ij += p_ij_xy * log2(p_ij_xy / (onecp[x*NUMCHARS+x1] * onecp[y*NUMCHARS+y1]));
 		}
 	}
 
