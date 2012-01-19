@@ -14,8 +14,10 @@
 #define SEQLENGTH 	1024	// maximum sequence length
 #define NUMSEQ		512		// maximum number of sequences
 
-#pragma OPENCL EXTENSION cl_amd_printf : enable
 //#define printfenable 1
+#ifdef printfenable
+#pragma OPENCL EXTENSION cl_amd_printf : enable
+#endif
 
 __kernel void oclMIcomputation(__global uchar * sequences, __global float * onePointProbs, __global float * result, uint sequenceLength, uint numSequences)
 {
